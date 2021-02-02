@@ -1,8 +1,128 @@
-16-1
-16-2
-16-3
-16-4
-16-5
 16-6
+from country_codes import get_country_code
+from pygal_maps_world.maps import World
+from pygal.style import RotateStyle as RS, LightColorizedStyle as LCS
+import csv
+ 
+# 将数据加载到一个列表中
+filename = 'gdp.csv'
+with open(filename) as f:
+    reader = csv.reader(f)
+    head_row = next(reader)
+    di_gdp = {}
+    for row in reader:
+        try:
+            country_name = row[0]
+            year = row[2]
+            value = int(float(row[3]))
+        except ValueError:
+            print('missing date')
+        else:
+            # 筛选年份为2015
+            if year == '2015':
+                code = get_country_code(country_name)
+                if code:
+                    di_gdp[code] = value
+ 
+# 根据人口数量进行分类
+di_gdp1, di_gdp10, di_gdp100 = {}, {}, {}
+for co, gdp in di_gdp.items():
+    if gdp < 1e+11:
+        di_gdp1[co] = gdp
+    elif gdp < 1e+12:
+        di_gdp10[co] = gdp
+    else:
+        di_gdp100[co] = gdp
+ 
+ 
+# 呈现数据
+wm_style = RS('#336699', base_style=LCS)
+wm = World(style=wm_style)
+wm.title = 'World GDP in 2015, by Country'
+wm.add('0-10b', di_gdp1)
+wm.add('10b-1tn', di_gdp10)
+wm.add('>1tn', di_gdp100)
+ 
+wm.render_to_file('world_gdp.svg')
 16-7
+
 16-8
+from pygal.maps.world import COUNTRIES
+ 
+ 
+def get_country_code(country_name):
+    """查询国家名字对应的两位代码"""
+    for code, name in COUNTRIES.items():
+        if name == country_name:
+            return code
+        elif country_name == 'Bolivia':
+            return 'bo'
+        elif country_name == 'Congo, Dem. Rep.':
+            return 'cd'
+        elif country_name == 'Congo, Rep.':
+            return 'cg'
+        elif country_name == 'Dominica':
+            return 'do'
+        elif country_name == 'Egypt, Arab Rep.':
+            return 'eg'
+        elif country_name == 'Gambia, The':
+            return 'gm'
+        elif country_name == 'Hong Kong SAR, China':
+            return 'hk'
+        elif country_name == 'Iran, Islamic Rep.':
+            return 'ir'
+        elif country_name == 'Korea, Dem. Rep.':
+            return 'kp'
+        elif country_name == 'Korea, Rep.':
+            return 'kr'
+        elif country_name == 'Kyrgyz Republic':
+            return 'kg'
+        elif country_name == 'Lao PDR':
+            return 'la'
+        elif country_name == 'Libya':
+            return 'ly'
+        elif country_name == 'Macao SAR, China':
+            return 'mo'
+        elif country_name == 'Macedonia, FYR':
+            return 'mk'
+        elif country_name == 'Moldova':
+            return 'md'
+        elif country_name == 'Slovak Republic':
+            return 'sk'
+        elif country_name == 'Tanzania':
+            return 'tz'
+        elif country_name == 'Venezuela, RB':
+            return 've'
+        elif country_name == 'Vietnam':
+            return 'vn'
+        elif country_name == 'Yemen, Rep.':
+            return 'ye'
+ 
+    # 未找到则返回None
+    return None
+ 
+ 
+# for code, name in COUNTRIES.items():
+#     print(code + ': ' + name)
+# print(get_country_code('China'))
+
+
+import unittest
+from country_codes import get_country_code
+ 
+ 
+class TestCountryCodes(unittest.TestCase):
+    """针对get_country_codes的测试类"""
+ 
+    def test_country_codes_inner(self):
+        country_name = 'Yemen, Rep.'
+        code = get_country_code(country_name)
+        self.assertEqual(code, 'ye')
+ 
+    def test_country_codes_outer(self):
+        country_name = 'Australia'
+        code = get_country_code(country_name)
+        self.assertEqual(code, 'au')
+ 
+ 
+unittest.main()
