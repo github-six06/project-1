@@ -41,7 +41,6 @@ wm.add('10b-1tn', di_gdp10)
 wm.add('>1tn', di_gdp100)
  
 wm.render_to_file('world_gdp.svg')
-16-7
 
 16-8
 from pygal.maps.world import COUNTRIES
